@@ -342,6 +342,7 @@ class MangaInfo:
         existing_data = []
 
         data = {
+            "id": self.manga.id,
             "title": self.manga.title,
             "authors": self.manga.authors,
             "artists": self.manga.artists,

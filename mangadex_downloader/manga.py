@@ -209,46 +209,21 @@ class Manga:
             log.info('Manga "%s" has no alternative titles' % get_local_attr(title))
             return get_local_attr(title)
 
-        # Append choices for user input
-        choices = {}
-        for count, data in enumerate(alt_titles, start=1):
-            for alt_title in data.values():
-                choices[str(count)] = alt_title
-
-        # Append the original title
-        count += 1
-        choices[str(count)] = get_local_attr(title)
-
         print(
             'Manga "%s" has alternative titles, please choose one'
             % get_local_attr(title)
         )
 
-        def print_choices():
-            for count, data in enumerate(alt_titles, start=1):
-                for lang, alt_title in data.items():
-                    language = get_details_language(lang)
-                    print("(%s). [%s]: %s" % (count, language.name, alt_title))
-
-            # Append the original title
-            count += 1
-            for lang, orig_title in title.items():
+        choices = {}
+        for data in reversed(alt_titles):
+            for lang, alt_title in data.items():
                 language = get_details_language(lang)
-                print("(%s). [%s]: %s" % (count, language.name, orig_title))
 
-        print_choices()
+                choices[language.name] = alt_title
 
-        # User input
-        while True:
-            choice = input_handle("=> ")
-            try:
-                title = choices[choice]
-            except KeyError:
-                print("Invalid choice, try again")
-                print_choices()
-                continue
-            else:
-                return title
+        print(choices)
+
+        return choices.get("English", get_local_attr(title))
 
     def _parse_description(self):
         description = self._attr.get("description")
@@ -264,36 +239,15 @@ class Manga:
         if len(description) <= 1:
             return get_local_attr(description)
 
-        # Append choices for user input
         choices = {}
-        for count, desc in enumerate(description.values(), start=1):
-            choices[str(count)] = desc
+        for lang, desc in reversed(description.items()):
+            language = get_details_language(lang)
+            choices[language.name] = desc
 
-        print(
-            'Manga "%s" has alternative descriptions, please choose one'
-            % self._orig_title
-        )
+        print(choices)
 
-        def print_choices():
-            count = 1
-            for lang, desc in description.items():
-                language = get_details_language(lang)
-                print("(%s). [%s]: %s" % (count, language.name, (desc[:90] + "...")))
-                count += 1
+        return choices.get("English", get_local_attr(description))
 
-        print_choices()
-
-        # User input
-        while True:
-            choice = input_handle("=> ")
-            try:
-                desc = choices[choice]
-            except KeyError:
-                print("Invalid choice, try again")
-                print_choices()
-                continue
-            else:
-                return desc
 
     def fetch_chapters(self, lang=None, chapter=None, all_chapters=False):
         """Fetch chapters of this manga.
@@ -396,6 +350,7 @@ class MangaInfo:
             "authors": self.manga.authors,
             "artists": self.manga.artists,
             "description": self.manga.description,
+            "status": self.manga.status,
             "tags": [i.name for i in self.manga.tags],
         }
 

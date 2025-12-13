@@ -221,8 +221,6 @@ class Manga:
 
                 choices[language.name] = alt_title
 
-        print(choices)
-
         return choices.get("English", get_local_attr(title))
 
     def _parse_description(self):
@@ -243,8 +241,6 @@ class Manga:
         for lang, desc in reversed(description.items()):
             language = get_details_language(lang)
             choices[language.name] = desc
-
-        print(choices)
 
         return choices.get("English", get_local_attr(description))
 

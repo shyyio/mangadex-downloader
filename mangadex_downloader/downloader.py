@@ -307,8 +307,6 @@ class ChapterPageDownloader(FileDownloader):
         self.resp = resp
 
     def _report(self, resp, size, _time, success):
-        if success:
-            return
         self.cleanup()
 
         # According to MangaDex devs

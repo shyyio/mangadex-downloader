@@ -349,7 +349,10 @@ class MangaInfo:
             "description": self.manga.description,
             "status": self.manga.status,
             "rating": self.manga.content_rating.name,
-            "chapters": [c.name for c in self.manga.chapters.chapters],
+            "chapters": [{
+                "name": c.name,
+                "groups": [g.name for g in c.groups],
+            } for c in self.manga.chapters.chapters],
             "tags": [i.name for i in self.manga.tags],
         }
 

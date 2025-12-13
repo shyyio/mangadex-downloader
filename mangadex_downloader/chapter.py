@@ -70,7 +70,12 @@ class ChapterImages:
         # Construct image url
         self._data = data
         self._base_url = data.get("baseUrl")
-        self._hash = data["chapter"]["hash"]
+        try:
+            self._hash = data["chapter"]["hash"]
+        except:
+            print(data)
+            raise
+
         self._images = data["chapter"]["data"]
         self._low_images = data["chapter"]["dataSaver"]
 

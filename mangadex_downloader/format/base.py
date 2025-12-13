@@ -103,78 +103,84 @@ class BaseFormat:
         total = sum(1 for _ in images.iter())
 
         pbm.set_pages_total(total)
-        pages_pb = pbm.get_pages_pb()
+        # pages_pb = pbm.get_pages_pb()
 
-        while True:
-            error = False
-            for page, img_url, img_name in images.iter(log_info=True):
-                img_hash = get_md_file_hash(img_name)
-                img_ext = os.path.splitext(img_name)[1]
-                img_name = count.get() + img_ext
+        def _dl(task):
+            page, img_url, img_name, img_hash = task
 
-                img_path = path / img_name
+            img_path = path / img_name
 
-                # This can be `True`, `False`, or `None`
-                # `True`: Verify success, hash matching
-                # `False`: Verify failed, hash is not matching
-                # `None`: Cannot verify, file is not exist (if `path` argument is given)
-                verified = verify_sha256(img_hash, img_path)
+            # This can be `True`, `False`, or `None`
+            # `True`: Verify success, hash matching
+            # `False`: Verify failed, hash is not matching
+            # `None`: Cannot verify, file is not exist (if `path` argument is given)
+            verified = verify_sha256(img_hash, img_path)
 
-                if verified is None:
-                    replace = False
-                else:
-                    replace = True if self.replace else not verified
+            if verified is None:
+                replace = False
+            else:
+                replace = True if self.replace else not verified
 
-                # If file still in intact and same as the server
-                # Continue to download the others
-                if verified and not self.replace:
-                    pbm.logger.debug(
-                        f"Page {page} ({img_name}) exists and is verified, "
-                        "cancelling download..."
-                    )
-                    count.increase()
-                    imgs.append(img_path)
-                    pages_pb.update(1)
-                    continue
-                elif verified is False and not self.replace:
-                    # File is not same server, probably modified
-                    pbm.logger.warning(
-                        f"Page {page} ({img_name}) exists but "
-                        "failed to verify (hash is not matching), re-downloading..."
-                    )
-
-                pbm.logger.info("Downloading %s page %s" % (chap_name, page))
-
-                downloader = ChapterPageDownloader(
-                    img_url,
-                    img_path,
-                    replace=replace,
+            # If file still in intact and same as the server
+            # Continue to download the others
+            if verified and not self.replace:
+                pbm.logger.debug(
+                    f"Page {page} ({img_name}) exists and is verified, "
+                    "cancelling download..."
                 )
-                success = downloader.download()
-                downloader.cleanup()
+                # pages_pb.update(1)
+                return img_path
+            elif verified is False and not self.replace:
+                # File is not same server, probably modified
+                pbm.logger.warning(
+                    f"Page {page} ({img_name}) exists but "
+                    "failed to verify (hash is not matching), re-downloading..."
+                )
 
-                # One of MangaDex network are having problem
-                # Fetch the new one, and start re-downloading
-                if not success:
-                    pbm.logger.error(
-                        "One of MangaDex network is failing, re-fetching the images..."
-                    )
-                    pbm.logger.info(
-                        "Getting %s from chapter %s"
-                        % ("compressed images" if self.compress_img else "images", chap)
-                    )
-                    error = True
-                    images.fetch()
-                    pages_pb.reset()
-                    break
-                else:
-                    imgs.append(img_path)
-                    count.increase()
-                    pages_pb.update(1)
-                    continue
+            # pbm.logger.info("Downloading %s page %s" % (chap_name, page))
 
-            if not error:
-                return imgs
+            downloader = ChapterPageDownloader(
+                img_url,
+                img_path,
+                replace=replace,
+            )
+            success = downloader.download()
+            downloader.cleanup()
+
+            # One of MangaDex network are having problem
+            # Fetch the new one, and start re-downloading
+            if not success:
+                pbm.logger.error(
+                    "One of MangaDex network is failing, re-fetching the images..."
+                )
+                pbm.logger.info(
+                    "Getting %s from chapter %s"
+                    % ("compressed images" if self.compress_img else "images", chap)
+                )
+                error = True
+                images.fetch()
+                # pages_pb.reset()
+                return None
+            else:
+                # pages_pb.update(1)
+                return img_path
+
+        from multiprocessing.pool import ThreadPool
+
+        tasks = []
+        for page, img_url, img_name in images.iter():
+            img_hash = get_md_file_hash(img_name)
+            img_ext = os.path.splitext(img_name)[1]
+            img_name = count.get() + img_ext
+
+            tasks.append((page, img_url, img_name, img_hash))
+            count.increase()
+
+        with ThreadPool(processes=4) as pool:
+            pool.map(_dl, tasks)
+
+        return imgs
+
 
     def mark_read_chapter(self, *chapters):
         """Mark a chapter as read"""

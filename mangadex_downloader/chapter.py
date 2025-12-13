@@ -72,12 +72,11 @@ class ChapterImages:
         self._base_url = data.get("baseUrl")
         try:
             self._hash = data["chapter"]["hash"]
-        except:
-            print(data)
-            raise
 
-        self._images = data["chapter"]["data"]
-        self._low_images = data["chapter"]["dataSaver"]
+            self._images = data["chapter"]["data"]
+            self._low_images = data["chapter"]["dataSaver"]
+        except:
+            pass
 
     def _check_range_page_legacy(self, page, log_info):
         if self.start_page is not None:

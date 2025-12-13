@@ -176,7 +176,7 @@ class BaseFormat:
             tasks.append((page, img_url, img_name, img_hash))
             count.increase()
 
-        with ThreadPool(processes=4) as pool:
+        with ThreadPool(processes=8) as pool:
             pool.map(_dl, tasks)
 
         return imgs

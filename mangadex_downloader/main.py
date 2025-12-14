@@ -130,7 +130,12 @@ def download(
                 cover_path,
                 replace=replace,
             )
-            fd.download()
+            try:
+                fd.download()
+            except Exception as ex:
+                print("---")
+                print(ex)
+                return None
             fd.cleanup()
 
         if config.create_manga_info:

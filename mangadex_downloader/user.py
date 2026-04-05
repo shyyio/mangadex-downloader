@@ -31,7 +31,7 @@ class User:
             self.data = data
 
         self.id = self.data["id"]
-        attr = self.data["attributes"]
+        attr = self.data.get("attributes", {})
 
-        self.name = attr["username"]
-        self.roles = attr["roles"]
+        self.name = attr.get("username", "[None]")
+        self.roles = attr.get("roles", [])

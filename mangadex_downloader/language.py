@@ -77,6 +77,7 @@ class Language(Enum):
     Slovak = "sk"  #:
     Georgian = "ka"  #:
     Serbian = "sr"
+    Estonian = "et"
 
     # Other language
     Other = None  #:

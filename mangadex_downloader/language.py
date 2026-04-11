@@ -80,6 +80,7 @@ class Language(Enum):
     Estonian = "et"
     Croatian = "hr"
     Slovenian = "sl"
+    Irish = "ga"
 
     # Other language
     Other = None  #:

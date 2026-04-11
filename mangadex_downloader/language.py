@@ -79,6 +79,7 @@ class Language(Enum):
     Serbian = "sr"
     Estonian = "et"
     Croatian = "hr"
+    Slovenian = "sl"
 
     # Other language
     Other = None  #:

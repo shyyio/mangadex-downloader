@@ -82,6 +82,7 @@ class Language(Enum):
     Slovenian = "sl"
     Irish = "ga"
     Urdu = "ur"
+    Basque = "eu"
 
     # Other language
     Other = None  #:

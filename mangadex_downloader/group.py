@@ -32,19 +32,20 @@ class Group:
             self.data = data
 
         self.id = self.data["id"]
-        attr = self.data["attributes"]
+
+        attr = self.data.get("attributes", {})
 
         # Name
-        self.name = attr["name"]
+        self.name = attr.get("name")
 
         # Alternative names
-        self.alt_names = [get_local_attr(i) for i in attr["altNames"]]
+        self.alt_names = [get_local_attr(i) for i in attr.get("altNames", [])]
 
         # is it locked ?
-        self.locked = attr["locked"]
+        self.locked = attr.get("locked")
 
         # Website
-        self.url = attr["website"]
+        self.url = attr.get("website")
 
         # description
-        self.description = attr["description"]
+        self.description = attr.get("description")

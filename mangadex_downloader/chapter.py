@@ -321,7 +321,8 @@ class Chapter:
         name = first_group.name
 
         for group in groups:
-            name += f" & {group.name}"
+            if group.name:
+                name += f" & {group.name}"
 
         return name
 

@@ -320,6 +320,9 @@ class Chapter:
         first_group = groups.pop(0)
         name = first_group.name
 
+        if name is None:
+            name = "[None]"
+
         for group in groups:
             if group.name:
                 name += f" & {group.name}"
